@@ -1,5 +1,5 @@
 import pandas as pd
-import matplotlib.pyplot as pltt
+import matplotlib.pyplot as plt
 
 # Cargar datos del archivo CSV
 df = pd.read_csv('fifa.csv', index_col='ID', encoding='windows-1252')

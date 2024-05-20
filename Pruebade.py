@@ -9,4 +9,4 @@ df['Sueldo'] = df['Sueldo'].str.replace(r'\D', '', regex=True).replace('', 0).as
 #df['Sueldo'] = df['Sueldo'].astype(str).astype(float)
 print(df.loc[212198, 'Sueldo'])
 print(df.dtypes)
-#print (df ['Sueldo']
+#print (df ['Sueldo']ss

@@ -1,0 +1,56 @@
+from PIL import Image, ImageDraw, ImageFont
+import matplotlib.pyplot as plt
+import pandas as pd
+import statistics as stats
+
+# Código para importar datos con Pandas, realizar operaciones estadísticas, graficar con Matplotlib y mostrar imágenes con Pillow
+
+# Código para importar datos desde un archivo Excel y realizar operaciones con Pandas
+rutaArchivo = 'datos.xlsx'
+dataFrame = pd.read_excel(rutaArchivo)
+# Calcular el promedio de las edades
+promedioEdad = dataFrame['Edad'].mean()
+
+# Agregar otra columna, de edades al cuadrado
+dataFrame["Edad al cuadrado"] = dataFrame["Edad"] ** 2
+
+# Filtrar filas con edad mayor a 30
+mostrarF = dataFrame[dataFrame["Edad"] > 30]
+
+# Guardar el DataFrame en un archivo CSV
+dataFrame.to_csv('datos_filtrados.csv', index=False)
+
+# Devolver las edades para otros usos
+edades = dataFrame["Edad"].tolist()
+
+# Código para mostrar imágenes con Pillow
+for nombre_completo in dataFrame['Nombres']:
+    primer_nombre = nombre_completo.split()[0].lower()  # Obtener el primer nombre en minúsculas
+    ruta_imagen = f"{primer_nombre}.jpg"  # Generar la ruta de la imagen
+    try:
+        imagen = Image.open(ruta_imagen)
+        imagen.show()
+    except FileNotFoundError:
+        print(f"No se encontró imagen para: {nombre_completo}")
+
+# Código para graficar con Matplotlib
+plt.figure(figsize=(8, 6))
+plt.bar(dataFrame['Nombres'], dataFrame['Edad'], color='green', label='Edad')
+plt.title('Gráfico de Datos')
+plt.xlabel('Nombres')
+plt.ylabel('Edades')
+plt.legend()
+plt.show()
+
+# Código para realizar operaciones estadísticas con el módulo Statistics
+promedio = stats.mean(edades)
+mediana = stats.median(edades)
+moda = stats.mode(edades)
+stdev = stats.stdev(edades)
+variance = stats.variance(edades)
+
+print(f"Promedio: {promedio}")
+print(f"Mediana: {mediana}")
+print(f"Moda: {moda}")
+print(f"Desviación estándar: {stdev}")
+print(f"Varianza: {variance}")

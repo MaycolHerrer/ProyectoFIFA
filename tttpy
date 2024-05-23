@@ -1,0 +1,45 @@
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
+# Función para realizar varias operaciones con Pillow e incluir la imagen de una persona en el cuadro
+def operaciones_pillow(nombre, ruta_imagen):
+    # Crear una imagen en blanco de 200x200 pixeles con fondo blanco
+    img = Image.new('RGB', (200, 200), color='white')
+    
+    # Dibujar un rectángulo azul con bordes negros dentro de la imagen
+    dibujoRectangulo = ImageDraw.Draw(img)
+    dibujoRectangulo.rectangle([50, 50, 150, 150], outline='black', fill='blue')
+    
+    # Añadir texto "Hola" con el nombre de la persona en la parte superior de la imagen
+    fuente = ImageFont.load_default()
+    dibujoRectangulo.text((60, 10), f"Hola {nombre}", fill='black', font=fuente)
+    
+    # Abrir la imagen de la persona con la ruta seleccionada
+    personaImg = Image.open(ruta_imagen)
+    # Redimensionar la imagen de la persona a 100x100 pixeles para que pueda caer en el cuadro
+    personaImg = personaImg.resize((100, 100))
+    # Pegar la imagen de la persona dentro del cuadro
+    img.paste(personaImg, (50, 50))
+
+    # Guardar la imagen original con la persona pegada
+    img.save('imagenConPersona.png')
+
+    # Aplicar filtro de borde en la imagen con todos los detalles ya puestos
+    bordesImagen = img.filter(ImageFilter.FIND_EDGES)
+    
+    # Guardar la imagen en otro archivo llamado imagenProcesada
+    output_path = 'imagenProcesada.png'
+    bordesImagen.save(output_path)
+    
+    # Mostrar la imagen final procesada
+    bordesImagen.show()
+    
+    return output_path
+def mostrar_imagen(nombre):
+    # Solicitar al usuario la ruta de la imagen correspondiente al nombre
+    ruta_imagen = input(f"Ingrese la ruta de la imagen para {nombre}: ")
+    
+    # Llamar a la función de operaciones con Pillow e incluir la imagen de la persona
+    operaciones_pillow(nombre, ruta_imagen)
+
+# Solicitar el nombre de la persona al usuario y mostrar la imagen correspondiente
+nombre = input("Ingrese el nombre de la persona: ")
+mostrar_imagen(nombre)

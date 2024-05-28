@@ -31,12 +31,9 @@ def mostrar_jugadores_a_prestamo():
 
 def mostrar_jugadores_menor_estatura_equipo(equipo):
     jugadores = df[df['Club'] == equipo]
-    if not jugadores.empty:
-        menor_estatura = jugadores.loc[jugadores['Altura (cm)'].idxmin()]
-        print(menor_estatura[['Nombre Jugador', 'Altura (cm)']])
-    else:
-        print(f"No se encontraron jugadores para el equipo {equipo}")
-    
+    menor_estatura = jugadores.loc[jugadores['Altura (cm)'].idxmin()]
+    print(menor_estatura[['Nombre Jugador', 'Altura (cm)']])
+
 def mostrar_foto_jugador(nombre):
     jugador = df[df['Nombre Jugador'] == nombre]
     if not jugador.empty:
@@ -167,15 +164,15 @@ def menu():
             sueldo = input("Ingrese el sueldo (deje vacío si no desea modificar): ")
             posicion = input("Ingrese la posición (deje vacío si no desea modificar): ")
             cara_real = input("Ingrese si tiene cara real (True/False, deje vacío si no desea modificar): ")
-            valor = int(valor) if valor else None
-            sueldo = int(sueldo) if sueldo else None
+            valor = float(valor) if valor else None
+            sueldo = float(sueldo) if sueldo else None
             cara_real = True if cara_real.lower() == 'true' else (False if cara_real.lower() == 'false' else None)
             modificar_atributos_jugador(nombre, valor, sueldo, posicion, cara_real)
         elif opcion == 10:
             club = input("Ingrese el club: ")
             nombre = input("Ingrese el nombre del jugador: ")
-            nacionalidad = input("Ingrese nacionalidad: ")
-            edad = int(input("Ingrese edad: "))
+            nacionalidad = input("Ingrese la nacionalidad: ")
+            edad = int(input("Ingrese la edad: "))
             overall = int(input("Ingrese el overall: "))
             potential = int(input("Ingrese el potential: "))
             valor = int(input("Ingrese el valor: "))
@@ -194,11 +191,9 @@ def menu():
             peso = int(input("Ingrese el peso: "))
             clausula_liberacion = input("Ingrese la cláusula de liberación: ")
             foto_jugador = input("Ingrese la URL de la foto del jugador: ")
-            # Agregar el jugador al DataFrame
-            df.loc[len(df)] = [club, nombre, nacionalidad, edad, overall, potential, valor, sueldo, pie_preferido, reputacion_internacional,
-                       pie_debil, skill_moves, tipo_cuerpo, cara_real, posicion, joined, prestado_por, contrato_valido_hasta,
-                       estatura, peso, clausula_liberacion, foto_jugador]
-            print("Jugador agregado correctamente.")
+            agregar_jugador(club, nombre, edad, nacionalidad, overall, potential, valor, sueldo, pie_preferido, reputacion_internacional,
+                            pie_debil, skill_moves, tipo_cuerpo, cara_real, posicion, joined, prestado_por, contrato_valido_hasta,
+                            estatura, peso, clausula_liberacion, foto_jugador)
         elif opcion == 11:
             mostrar_promedio_potencial_por_equipo()
         elif opcion == 12:

@@ -4,41 +4,41 @@ from PIL import Image
 import pandas as pd
 import matplotlib.pyplot as plt
 # Cargar datos del archivo CSV
-df = pd.read_csv('fifa.csv', index_col='ID', encoding='windows-1252')
+datosJugadores = pd.read_csv('fifa.csv', index_col='ID', encoding='windows-1252')
 # Usar expresiones regulares para limpiar conjunto de caracteres
-df['Sueldo'] = df['Sueldo'].str.replace(r'\D', '', regex=True).replace('', 0).astype(int)
-print(df.info())
+datosJugadores['Sueldo'] = df['Sueldo'].str.replace(r'\D', '', regex=True).replace('', 0).astype(int)
+print(datosJugadores.info())
 
-def mostrar_jugadores_sueldo_mayor(monto):
-    jugadores = df[df['Sueldo'] > monto]
+def jugadores_sueldo_Mayor(monto):
+    jugadores = datosJugadores[datosJugadores['Sueldo'] > monto]
     print(jugadores[['Nombre Jugador', 'Sueldo']])
 
-def mostrar_edad_promedio_equipo(equipo):
-    jugadores = df[df['Club'] == equipo]
+def edad_promedio_equipo(equipo):
+    jugadores = datosJugadores[datosJugadores['Club'] == equipo]
     edad_promedio = jugadores['Edad'].mean()
     print(f'Edad promedio de los jugadores del equipo {equipo}: {edad_promedio}')
 
-def mostrar_jugadores_letra_nacionalidad(letra, nacionalidad):
+def jugadores_letra_nacionalidad(letra, nacionalidad):
     if len(letra) == 1:
-        jugadores = df[(df['Nombre Jugador'].str.startswith(letra)) & (df['Nacionalidad'] == nacionalidad)]
+        jugadores = datosJugadores[(datosJugadores['Nombre Jugador'].str.startswith(letra)) & (df['Nacionalidad'] == nacionalidad)]
         print(jugadores[['Nombre Jugador', 'Nacionalidad']])
     else:
         print("La letra debe ser solo un carácter")
 
-def mostrar_jugadores_a_prestamo():
-    jugadores = df[df['Prestado Por'].notna()]
+def jugadores_a_prestamo():
+    jugadores = datos_jugadores[datos_jugadores['Prestado Por'].notna()]
     print(jugadores[['Nombre Jugador', 'Prestado Por']])
 
-def mostrar_jugadores_menor_estatura_equipo(equipo):
-    jugadores = df[df['Club'] == equipo]
+def jugadores_menor_estatura_equipo(equipo):
+    jugadores = datos_jugadores[datos_jugadores['Club'] == equipo]
     if not jugadores.empty:
-        menor_estatura = jugadores.loc[jugadores['Altura (cm)'].idxmin()]
-        print(menor_estatura[['Nombre Jugador', 'Altura (cm)']])
+        menorEstatura = jugadores.loc[jugadores['Altura (cm)'].idxmin()]
+        print(menorEstatura[['Nombre Jugador', 'Altura (cm)']])
     else:
         print(f"No se encontraron jugadores para el equipo {equipo}")
     
-def mostrar_foto_jugador(nombre):
-    jugador = df[df['Nombre Jugador'] == nombre]
+def foto_jugadores(nombre):
+    jugador = datosJugadores[datosJugadores['Nombre Jugador'] == nombre]
     if not jugador.empty:
         foto_url = jugador.iloc[0]['Foto Jugador']
         response = requests.get(foto_url)
@@ -52,8 +52,8 @@ def mostrar_foto_jugador(nombre):
     else:
         print("Jugador no encontrado")
 
-def mostrar_grafico_jugadores_por_nacionalidad(nacionalidad):
-    jugadores = df[df['Nacionalidad'] == nacionalidad]
+def grafico_jugadores_por_nacionalidad(nacionalidad):
+    jugadores = datosJugadores[datosJugadores['Nacionalidad'] == nacionalidad]
     conteo = jugadores['Nombre Jugador'].nunique()  # Contar la cantidad de valores únicos en la columna 'Nombre Jugador'
     print(f'Cantidad de jugadores de {nacionalidad}: {conteo}')
     plt.bar([nacionalidad], [conteo])
@@ -62,27 +62,27 @@ def mostrar_grafico_jugadores_por_nacionalidad(nacionalidad):
     plt.title(f'Número de jugadores de {nacionalidad}')
     plt.show()
 
-def mostrar_jugadores_y_clubes_por_fecha_contrato(fecha, año):
-    jugadores = df[(df['Fecha Contratacion'] == fecha) & (df['Contrato Valido Hasta'] == año)]
+def jugadores_y_clubes_por_fecha_contrato(fecha, año):
+    jugadores = datosJugadores[(datosJugadores['Fecha Contratacion'] == fecha) & (datosJugadores['Contrato Valido Hasta'] == año)]
     print(jugadores[['Nombre Jugador', 'Club', 'Fecha Contratacion', 'Contrato Valido Hasta']])
 
 def modificar_atributos_jugador(nombre, valor=None, sueldo=None, posicion=None, cara_real=None):
-    idx = df[df['Nombre Jugador'] == nombre].index
+    idx = datosJugadores[datosJugadores['Nombre Jugador'] == nombre].index
     if not idx.empty:
         if valor is not None:
-            df.at[idx[0], 'Valor'] = valor
+            datosJugadores.at[idx[0], 'Valor'] = valor
         if sueldo is not None:
-            df.at[idx[0], 'Sueldo'] = sueldo
+            datosJugadores.at[idx[0], 'Sueldo'] = sueldo
         if posicion is not None:
-            df.at[idx[0], 'Posicion'] = posicion
+            datosJugadores.at[idx[0], 'Posicion'] = posicion
         if cara_real is not None:
-            df.at[idx[0], 'Cara Real'] = cara_real
+            datosJugadores.at[idx[0], 'Cara Real'] = caraReal
         print("Atributos modificados")
     else:
         print("Jugador no encontrado")
 
-def mostrar_promedio_potencial_por_equipo():
-    equipos = df['Club'].unique()
+def promedio_potencial_por_equipo():
+    equipos = datosJugadores['Club'].unique()
     for equipo in equipos:
         jugadores = df[df['Club'] == equipo]
         if not jugadores.empty:
@@ -91,18 +91,18 @@ def mostrar_promedio_potencial_por_equipo():
             promedio_potencial = (max_potencial + min_potencial) / 2
             print(f"Promedio de potencial en {equipo}: {promedio_potencial}")
 
-def mostrar_top_5_jugadores_por_letra(letra):
-    jugadores = df[df['Nombre Jugador'].str.contains(letra)]
+def top_5_jugadores_por_letra(letra):
+    jugadores = datosJugadores[datosJugadores['Nombre Jugador'].str.contains(letra)]
     top_5_jugadores = jugadores.nlargest(5, 'Sueldo')
     print(top_5_jugadores[['Nombre Jugador', 'Sueldo']])
 
-def mostrar_numero_jugadores_pie_izquierdo():
-    jugadores_izquierdos = df[df['Pie Preferido'] == 'left'].shape[0]
-    print(f"Número de jugadores con pie izquierdo: {jugadores_izquierdos}")
+def numero_jugadores_pie_izquierdo():
+    jugadoresIzquierdos = datosJugadores[datosJugadores['Pie Preferido'] == 'left'].shape[0]
+    print(f"Número de jugadores con pie izquierdo: {jugadoresIzquierdos}")
 
-def mostrar_promedio_edad_altura_peso_por_nacionalidad():
+def promedio_edad_altura_peso_por_nacionalidad():
     nacionalidad = input("Ingrese la nacionalidad para mostrar el promedio de edad, altura y peso: ")
-    jugadores = df[df['Nacionalidad'] == nacionalidad]
+    jugadores = datosJugadores[datosJugadores['Nacionalidad'] == nacionalidad]
     if not jugadores.empty:
         promedios = jugadores[['Edad', 'Altura (cm)', 'Peso (Kg)']].mean()
         promedios.plot(kind='bar')
@@ -195,19 +195,19 @@ def menu():
             clausula_liberacion = input("Ingrese la cláusula de liberación: ")
             foto_jugador = input("Ingrese la URL de la foto del jugador: ")
             # Agregar el jugador al DataFrame
-            df.loc[len(df)] = [club, nombre, nacionalidad, edad, overall, potential, valor, sueldo, pie_preferido, reputacion_internacional,
+            datosJugadores.loc[len(df)] = [club, nombre, nacionalidad, edad, overall, potential, valor, sueldo, pie_preferido, reputacion_internacional,
                        pie_debil, skill_moves, tipo_cuerpo, cara_real, posicion, joined, prestado_por, contrato_valido_hasta,
                        estatura, peso, clausula_liberacion, foto_jugador]
             print("Jugador agregado correctamente.")
         elif opcion == 11:
-            mostrar_promedio_potencial_por_equipo()
+            promedio_potencial_por_equipo()
         elif opcion == 12:
             letra = input("Ingrese la letra: ")
-            mostrar_top_5_jugadores_por_letra(letra)
+            top_5_jugadores_por_letra(letra)
         elif opcion == 13:
-            mostrar_numero_jugadores_pie_izquierdo()
+            numero_jugadores_pie_izquierdo()
         elif opcion == 14:
-            mostrar_promedio_edad_altura_peso_por_nacionalidad()
+            promedio_edad_altura_peso_por_nacionalidad()
         else:
             print("Opción no válida. Intente de nuevo.")
 

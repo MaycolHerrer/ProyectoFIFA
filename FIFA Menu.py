@@ -91,21 +91,21 @@ def graficojugadorespornacionalidad(nacionalidad):
     conteo = datosJugadores['nacionalidad'].value_counts()
 
     # Verificar si la nacionalidad especificada está en los datos
-    if nacionalidad in conteo.index:
+    if nacionalidad in conteo:
         # Obtener conteo de jugadores de la nacionalidad especificada
         conteo_especifico = conteo[nacionalidad]
     else:
         print(f'No hay jugadores de {nacionalidad}')
         return
 
-    # Obtener las o más comunes (excluyendo la nacionalidad especificada)
+    # Obtener las 5 nacionalidades más comunes (excluyendo la nacionalidad especificada)
     top5 = conteo.drop(nacionalidad).head(5)
 
-    # Concatenar la nacionalidad especificada con las o más comunes
-    too = pd.concat([top5, pd.Series({nacionalidad: conteo_especifico})])
+    # Agregar la nacionalidad especificada a las 5 más comunes
+    top5[nacionalidad] = conteo_especifico
 
-    # Mostrar el gráfico con las 5
-    plt.bar(too.index, too, color=['blue'] * 5 + ['red'])  
+    # Mostrar el gráfico
+    plt.bar(top5.index, top5, color=['blue'] * 5 + ['red'])  
     plt.xlabel('Nacionalidad')
     plt.ylabel('Número de jugadores')
     plt.title(f'Número de jugadores por nacionalidad (Top 5 + {nacionalidad})')
@@ -206,7 +206,7 @@ def promediopornacionalidad(datosJugadores):
         print('No se encontraron jugadores para esa nacionalidad.')
 
 ##Opcion 15 incluida por el proyecto##
-def mostrar_datos_jugador(nombre_jugador):
+def mostrarDatosJugador(nombre_jugador):
     jugador = datosJugadores[datosJugadores['nombre jugador'] == nombre_jugador]
     if not jugador.empty:
         for columna in jugador.columns:
@@ -289,7 +289,7 @@ def menu():
             promediopornacionalidad(datosJugadores)
         elif opcion == 15:
             nombre_jugador = input("Ingrese el nombre del jugador: ")
-            mostrar_datos_jugador(nombre_jugador)
+            mostrarDatosJugador(nombre_jugador)
             
         else:
             print("Opción no válida. Intente de nuevo.")

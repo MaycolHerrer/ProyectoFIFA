@@ -3,119 +3,216 @@ import requests
 from PIL import Image
 import pandas as pd
 import matplotlib.pyplot as plt
+
+def remplazarVocales(s):
+    reemplazos = (
+        ("á", "a"),
+        ("é", "e"),
+        ("í", "i"),
+        ("ó", "o"),
+        ("ú", "u"),
+        ("?", "ć"),
+        ("€", ""),
+        (",", ""),
+        ("-", "")
+    )
+    for a, b in reemplazos:
+        s = s.replace(a, b).replace(a.upper(), b.upper())
+    return s
+
 # Cargar datos del archivo CSV
-datosJugadores = pd.read_csv('fifa.csv', index_col='ID', encoding='windows-1252')
-# Usar expresiones regulares para limpiar conjunto de caracteres
-datosJugadores['Sueldo'] = df['Sueldo'].str.replace(r'\D', '', regex=True).replace('', 0).astype(int)
+datosJugadores = pd.read_csv('fifa.csv', encoding='windows-1252')
+
+# Convertir todas las columnas a str y aplicar remplazarVocales a todos los valores
+datosJugadores = datosJugadores.astype(str).applymap(remplazarVocales)
+
+# Quitar espacios en blanco de los nombres de las columnas y convertir a minúsculas
+datosJugadores = datosJugadores.rename(columns=remplazarVocales)
+datosJugadores.columns = [col.strip().lower() for col in datosJugadores.columns]
+datosJugadores = datosJugadores.applymap(str.lower)
+
 print(datosJugadores.info())
 
-def jugadores_sueldo_Mayor(monto):
-    jugadores = datosJugadores[datosJugadores['Sueldo'] > monto]
-    print(jugadores[['Nombre Jugador', 'Sueldo']])
+def jugadoressueldomayor(monto):
+# Usar expresiones regulares para limpiar conjunto de caracteres
+#datosJugadores['sueldo'] = datosJugadores['sueldo'].str.replace(r'\D', '', regex=True).replace('', 0).astype(int)
+    datosJugadores['sueldo'] = datosJugadores['sueldo'].str.strip()
+    datosJugadores['sueldo'] = datosJugadores['sueldo'].replace(',', '').replace('', '0').astype(int)
+    jugadores = datosJugadores[datosJugadores['sueldo'] > monto]
+    print(jugadores[['nombre jugador', 'sueldo']])
 
-def edad_promedio_equipo(equipo):
-    jugadores = datosJugadores[datosJugadores['Club'] == equipo]
-    edad_promedio = jugadores['Edad'].mean()
-    print(f'Edad promedio de los jugadores del equipo {equipo}: {edad_promedio}')
+def edadpromedioequipo(equipo):
+    datosJugadores['edad'] = datosJugadores['edad'].astype(int)
+    jugadores = datosJugadores[datosJugadores['club'].str.contains(equipo, case=False)]
+    if not jugadores.empty:
+        edadpromedio = jugadores['edad'].mean()
+        print(f'La edad promedio de los jugadores del equipo que contiene "{equipo}" es de {edadpromedio} años.')
+    else:
+        print(f'No se encontraron jugadores para el equipo que contiene "{equipo}".')
 
-def jugadores_letra_nacionalidad(letra, nacionalidad):
+def jugadoresletranacionalidad(letra, nacionalidad):
     if len(letra) == 1:
-        jugadores = datosJugadores[(datosJugadores['Nombre Jugador'].str.startswith(letra)) & (df['Nacionalidad'] == nacionalidad)]
-        print(jugadores[['Nombre Jugador', 'Nacionalidad']])
+        jugadores = datosJugadores[(datosJugadores['nombre jugador'].str.startswith(letra)) & (datosJugadores['nacionalidad'] == nacionalidad)]
+        print(jugadores[['nombre jugador', 'nacionalidad']])
     else:
         print("La letra debe ser solo un carácter")
 
-def jugadores_a_prestamo():
-    jugadores = datos_jugadores[datos_jugadores['Prestado Por'].notna()]
-    print(jugadores[['Nombre Jugador', 'Prestado Por']])
+def jugadoresaprestamo():
+    jugadores = datosJugadores[datosJugadores['prestado por'].notna()]
+    print(jugadores[['nombre jugador', 'prestado por']])
 
-def jugadores_menor_estatura_equipo(equipo):
-    jugadores = datos_jugadores[datos_jugadores['Club'] == equipo]
+def jugadoresmenorestaturaequipo(equipo):
+    jugadores = datosJugadores[datosJugadores['club'] == equipo]
     if not jugadores.empty:
-        menorEstatura = jugadores.loc[jugadores['Altura (cm)'].idxmin()]
-        print(menorEstatura[['Nombre Jugador', 'Altura (cm)']])
+        menorEstatura = jugadores.loc[jugadores['altura (cm)'].idxmin()]
+        print(menorEstatura[['nombre jugador', 'altura (cm)']])
     else:
         print(f"No se encontraron jugadores para el equipo {equipo}")
     
-def foto_jugadores(nombre):
-    jugador = datosJugadores[datosJugadores['Nombre Jugador'] == nombre]
+def fotojugadores(nombre):
+    jugador = datosJugadores[datosJugadores['nombre jugador'] == nombre]
     if not jugador.empty:
-        foto_url = jugador.iloc[0]['Foto Jugador']
-        response = requests.get(foto_url)
-        response.raise_for_status()  # Genera una excepción si la solicitud no fue exitosa (código de estado diferente de 200)
-        temp_file = "temp_image.jpg"  # Guardar la imagen en un archivo temporal
-        with open(temp_file, "wb") as f:
-            f.write(response.content)
-        imagen = Image.open(temp_file)  # Abrir la imagen con PIL
-        imagen.show()
-        os.remove(temp_file)  # Eliminar el archivo temporal
+        fotourl = jugador.iloc[0]['foto jugador']
+        response = requests.get(fotourl)
+        if response.status_code == 200:  # Verificar si la solicitud fue exitosa
+            tempfile = "tempimage.jpg"  # Guardar la imagen en un archivo temporal
+            with open(tempfile, "wb") as f:
+                f.write(response.content)
+            imagen = Image.open(tempfile)  # Abrir la imagen con PIL
+            imagen.show()
+            os.remove(tempfile)  # Eliminar el archivo temporal
+        else:
+            print("La solicitud no fue exitosa. Código de estado:", response.status_code)
     else:
         print("Jugador no encontrado")
+        
+def graficojugadorespornacionalidad(nacionalidad):
+    # Obtener conteo de jugadores por nacionalidad
+    conteo = datosJugadores['nacionalidad'].value_counts()
 
-def grafico_jugadores_por_nacionalidad(nacionalidad):
-    jugadores = datosJugadores[datosJugadores['Nacionalidad'] == nacionalidad]
-    conteo = jugadores['Nombre Jugador'].nunique()  # Contar la cantidad de valores únicos en la columna 'Nombre Jugador'
-    print(f'Cantidad de jugadores de {nacionalidad}: {conteo}')
-    plt.bar([nacionalidad], [conteo])
+    # Verificar si la nacionalidad especificada está en los datos
+    if nacionalidad in conteo:
+        # Obtener conteo de jugadores de la nacionalidad especificada
+        conteo_especifico = conteo[nacionalidad]
+    else:
+        print(f'No hay jugadores de {nacionalidad}')
+        return
+
+    # Obtener las 5 nacionalidades más comunes (excluyendo la nacionalidad especificada)
+    top5 = conteo.drop(nacionalidad).head(5)
+
+    # Agregar la nacionalidad especificada a las 5 más comunes
+    top5[nacionalidad] = conteo_especifico
+
+    # Mostrar el gráfico
+    plt.bar(top5.index, top5, color=['blue'] * 5 + ['red'])  
     plt.xlabel('Nacionalidad')
     plt.ylabel('Número de jugadores')
-    plt.title(f'Número de jugadores de {nacionalidad}')
+    plt.title(f'Número de jugadores por nacionalidad (Top 5 + {nacionalidad})')
+    plt.xticks(rotation=45)  
     plt.show()
 
-def jugadores_y_clubes_por_fecha_contrato(fecha, año):
-    jugadores = datosJugadores[(datosJugadores['Fecha Contratacion'] == fecha) & (datosJugadores['Contrato Valido Hasta'] == año)]
-    print(jugadores[['Nombre Jugador', 'Club', 'Fecha Contratacion', 'Contrato Valido Hasta']])
+def jugadoresyclubesporfechacontrato(fecha, año):
+    jugadores = datosJugadores[(datosJugadores['fecha contratacion'] == fecha) & (datosJugadores['contrato valido hasta'] == año)]
+    print(jugadores[['nombre jugador', 'club', 'fecha contratacion', 'contrato Valido Hasta']])
 
-def modificar_atributos_jugador(nombre, valor=None, sueldo=None, posicion=None, cara_real=None):
-    idx = datosJugadores[datosJugadores['Nombre Jugador'] == nombre].index
-    if not idx.empty:
-        if valor is not None:
-            datosJugadores.at[idx[0], 'Valor'] = valor
-        if sueldo is not None:
-            datosJugadores.at[idx[0], 'Sueldo'] = sueldo
-        if posicion is not None:
-            datosJugadores.at[idx[0], 'Posicion'] = posicion
-        if cara_real is not None:
-            datosJugadores.at[idx[0], 'Cara Real'] = caraReal
-        print("Atributos modificados")
+ ### Opción 9 ###   
+def modificaratributosjugador(datosJugadores, nNombre, nvalor=None, nsueldo=None, nposicion=None, ncarareal=None):
+    # Usamos el método loc para encontrar el índice de la fila donde está el jugador
+    JugadorFiltrado = datosJugadores[datosJugadores['nombre jugador'] == nNombre].index
+    # Iniciamos un contador para imprimir el mensaje final solo si hay al menos 1 cambio
+    contador = 0
+    
+    # Cambiar los atributos si tienen un valor diferente de None
+    if nvalor is not None:
+        datosJugadores.loc[JugadorFiltrado, 'valor'] = nvalor
+        contador += 1
+    if nsueldo is not None:
+        datosJugadores.loc[JugadorFiltrado, 'sueldo'] = nsueldo
+        contador += 1
+    if nposicion is not None:
+        datosJugadores.loc[JugadorFiltrado, 'posicion'] = nposicion
+        contador += 1
+    if ncarareal is not None:
+        datosJugadores.loc[JugadorFiltrado, 'cara real'] = ncarareal
+        contador += 1
+    
+    # Guardar los cambios en el archivo CSV
+    datosJugadores.to_csv('fifa.csv', index=False)
+    
+    if contador > 0:
+        print("Atributos modificados exitosamente")
+    else:
+        print("No hubo cambios")
+
+def promediopotencialporequipo():
+    equipos = datosJugadores['club'].unique()
+    for equipo in equipos:
+        jugadores = datosJugadores[datosJugadores['club'] == equipo]
+        if not jugadores.empty:
+            maxpotencial = jugadores['Potential'].max()
+            minpotencial = jugadores['Potential'].min()
+            promediopotencial = (maxpotencial + minpotencial) / 2
+            print(f"Promedio de potencial en {equipo}: {promediopotencial}")
+
+def top5jugadoresporletra(letra):
+    jugadores = datosJugadores[datosJugadores['nombre jugador'].str.contains(letra)]
+    top5jugadores = jugadores.nlargest(5, 'sueldo')
+    print(top5jugadores[['nombre jugador', 'sueldo']])
+    
+### OPCIÓN 13 ###
+def numerojugadorespieizquierdo():
+    # Filtro de pie izquierdo
+    PieIzquierdo = datosJugadores[datosJugadores['pie preferido'] == 'left']
+    # Cuento con shape (cuenta la cantida de filas que hay en la columna)
+    ContadorPie = PieIzquierdo.shape[0]
+    # Imprimo
+    print(f"Cantidad de jugadores con el pie izquierdo: {ContadorPie}")
+
+###opcion 10###
+def anadirjugadorclub(jugador, club):
+
+    # Verificar si el jugador está en el archivo de datos
+    if jugador not in datosJugadores['nombre jugador'].values:
+        print(f'El jugador {jugador} no está en la base de datos.')
+        return
+
+    # Actualizar el club del jugador
+    datosJugadores.loc[datosJugadores['nombre jugador'] == jugador, 'club'] = club
+    
+    # Guardar los cambios en el archivo CSV
+    datosJugadores.to_csv('fifa.csv')
+    
+    print(f'El jugador {jugador} ha sido agregado al club {club}.')
+
+### Opción 14 ###
+def promediopornacionalidad(datosJugadores):
+    nacionalidad = input("Ingrese la nacionalidad para mostrar el promedio de edad, altura y peso: ")
+    jugadores = datosJugadores[datosJugadores['nacionalidad'] == nacionalidad]
+    datosJugadores['edad'] = jugadores['edad'].astype(int)
+    datosJugadores['altura (cm)'] = jugadores['altura (cm)'].astype(int)
+    datosJugadores['peso (kg)'] = jugadores['peso (kg)'].astype(int)
+    if not jugadores.empty:
+        promedios = datosJugadores[['edad', 'altura (cm)', 'peso (kg)']].mean()
+        print("Promedio de edad:", f"{promedios['edad']:.1f}")
+        print("Promedio de altura en cm:", f"{promedios['altura (cm)']:.1f}")
+        print("Promedio de peso en kg:", f"{promedios['peso (kg)']:.1f}")
+    else:
+        print('No se encontraron jugadores para esa nacionalidad.')
+
+##Opcion 15 incluida por el proyecto##
+def mostrarDatosJugador(nombre_jugador):
+    jugador = datosJugadores[datosJugadores['nombre jugador'] == nombre_jugador]
+    if not jugador.empty:
+        for columna in jugador.columns:
+            print(f"{columna}: {jugador[columna].values[0]}")
     else:
         print("Jugador no encontrado")
 
-def promedio_potencial_por_equipo():
-    equipos = datosJugadores['Club'].unique()
-    for equipo in equipos:
-        jugadores = df[df['Club'] == equipo]
-        if not jugadores.empty:
-            max_potencial = jugadores['Potential'].max()
-            min_potencial = jugadores['Potential'].min()
-            promedio_potencial = (max_potencial + min_potencial) / 2
-            print(f"Promedio de potencial en {equipo}: {promedio_potencial}")
-
-def top_5_jugadores_por_letra(letra):
-    jugadores = datosJugadores[datosJugadores['Nombre Jugador'].str.contains(letra)]
-    top_5_jugadores = jugadores.nlargest(5, 'Sueldo')
-    print(top_5_jugadores[['Nombre Jugador', 'Sueldo']])
-
-def numero_jugadores_pie_izquierdo():
-    jugadoresIzquierdos = datosJugadores[datosJugadores['Pie Preferido'] == 'left'].shape[0]
-    print(f"Número de jugadores con pie izquierdo: {jugadoresIzquierdos}")
-
-def promedio_edad_altura_peso_por_nacionalidad():
-    nacionalidad = input("Ingrese la nacionalidad para mostrar el promedio de edad, altura y peso: ")
-    jugadores = datosJugadores[datosJugadores['Nacionalidad'] == nacionalidad]
-    if not jugadores.empty:
-        promedios = jugadores[['Edad', 'Altura (cm)', 'Peso (Kg)']].mean()
-        promedios.plot(kind='bar')
-        plt.xlabel('Atributos')
-        plt.ylabel('Promedio')
-        plt.title(f'Promedio de Edad, Altura y Peso para {nacionalidad}')
-        plt.show()
-    else:
-        print(f"No se encontraron jugadores para la nacionalidad {nacionalidad}")
 
 def menu():
     while True:
-        print("--- Menú ---")
+        print("Bienvenidos a nuestro programa de FIFA de proyecto, intoduzca una opcion numerica para efectuar una accion")
         print("1. Mostrar jugadores con sueldo mayor a un número indicado")
         print("2. Mostrar edad promedio de jugadores de un equipo indicado")
         print("3. Mostrar jugadores por letra y nacionalidad")
@@ -130,6 +227,7 @@ def menu():
         print("12. Mostrar top 5 jugadores que ganan más dinero por letra indicada")
         print("13. Mostrar número de jugadores con pie izquierdo")
         print("14. Mostrar promedio de edad, altura y peso por nacionalidad")
+        print("15. Mostrar todos los datos de un jugador(incluida por el proyecto)")
         print("0. Salir")
 
         opcion = int(input("Seleccione una opción: "))
@@ -138,76 +236,56 @@ def menu():
             break
         elif opcion == 1:
             monto = int(input("Ingrese el sueldo: "))
-            mostrar_jugadores_sueldo_mayor(monto)
+            jugadoressueldomayor(monto)
         elif opcion == 2:
             equipo = input("Ingrese el equipo: ")
-            mostrar_edad_promedio_equipo(equipo)
+            edadpromedioequipo(equipo)
         elif opcion == 3:
             letra = input("Ingrese la letra: ")
-            nacionalidad = input("Ingrese la nacionalidad: ")
-            mostrar_jugadores_letra_nacionalidad(letra, nacionalidad)
+            nnacionalidad = input("Ingrese la nacionalidad: ")
+            jugadoresletranacionalidad(letra, nnacionalidad)
         elif opcion == 4:
-            mostrar_jugadores_a_prestamo()
+            jugadoresaprestamo()
         elif opcion == 5:
             equipo = input("Ingrese el equipo: ")
-            mostrar_jugadores_menor_estatura_equipo(equipo)
+            jugadoresmenorestaturaequipo(equipo)
         elif opcion == 6:
             nombre = input("Ingrese el nombre del jugador: ")
-            mostrar_foto_jugador(nombre)
+            fotojugadores(nombre)
         elif opcion == 7:
-            nacionalidad = input("Ingrese la nacionalidad: ")
-            mostrar_grafico_jugadores_por_nacionalidad(nacionalidad)
+            nnacionalidad = input("Ingrese la nacionalidad: ")
+            graficojugadorespornacionalidad(nnacionalidad)
         elif opcion == 8:
             fecha = input("Ingrese la fecha de contratación (AAAA-MM-DD): ")
             año = int(input("Ingrese el año de contrato válido: "))
-            mostrar_jugadores_y_clubes_por_fecha_contrato(fecha, año)
+            jugadoresyclubesporfechacontrato(fecha, año)
         elif opcion == 9:
-            nombre = input("Ingrese el nombre del jugador: ")
-            valor = input("Ingrese el valor (deje vacío si no desea modificar): ")
-            sueldo = input("Ingrese el sueldo (deje vacío si no desea modificar): ")
-            posicion = input("Ingrese la posición (deje vacío si no desea modificar): ")
-            cara_real = input("Ingrese si tiene cara real (True/False, deje vacío si no desea modificar): ")
-            valor = int(valor) if valor else None
-            sueldo = int(sueldo) if sueldo else None
-            cara_real = True if cara_real.lower() == 'true' else (False if cara_real.lower() == 'false' else None)
-            modificar_atributos_jugador(nombre, valor, sueldo, posicion, cara_real)
+            nNombre = input("Ingrese el nombre del jugador: ")
+            nvalor = input("Ingrese el valor en numeros enteros (deje vacío si no desea modificar): ")
+            nsueldo = input("Ingrese el sueldo en numeros enteros (deje vacío si no desea modificar): ")
+            nposicion = input("Ingrese la posición (deje vacío si no desea modificar): ")
+            ncarareal = input("Ingrese si tiene cara real (Yes/No, deje vacío si no desea modificar): ")
+            modificaratributosjugador(datosJugadores, nNombre, nvalor, nsueldo, nposicion, ncarareal)
         elif opcion == 10:
-            club = input("Ingrese el club: ")
-            nombre = input("Ingrese el nombre del jugador: ")
-            nacionalidad = input("Ingrese nacionalidad: ")
-            edad = int(input("Ingrese edad: "))
-            overall = int(input("Ingrese el overall: "))
-            potential = int(input("Ingrese el potential: "))
-            valor = int(input("Ingrese el valor: "))
-            sueldo = int(input("Ingrese el sueldo: "))
-            pie_preferido = input("Ingrese el pie preferido: ")
-            reputacion_internacional = int(input("Ingrese la reputación internacional: "))
-            pie_debil = input("Ingrese el pie débil: ")
-            skill_moves = int(input("Ingrese el número de Skill Moves: "))
-            tipo_cuerpo = input("Ingrese el tipo de cuerpo: ")
-            cara_real = input("Ingrese si tiene cara real (True/False): ").lower() == 'true'
-            posicion = input("Ingrese la posición: ")
-            joined = input("Ingrese la fecha de contratación (AAAA-MM-DD): ")
-            prestado_por = input("Ingrese si está prestado por otro club (deje vacío si no): ")
-            contrato_valido_hasta = input("Ingrese la fecha de finalización del contrato (AAAA-MM-DD): ")
-            estatura = int(input("Ingrese la estatura: "))
-            peso = int(input("Ingrese el peso: "))
-            clausula_liberacion = input("Ingrese la cláusula de liberación: ")
-            foto_jugador = input("Ingrese la URL de la foto del jugador: ")
-            # Agregar el jugador al DataFrame
-            datosJugadores.loc[len(df)] = [club, nombre, nacionalidad, edad, overall, potential, valor, sueldo, pie_preferido, reputacion_internacional,
-                       pie_debil, skill_moves, tipo_cuerpo, cara_real, posicion, joined, prestado_por, contrato_valido_hasta,
-                       estatura, peso, clausula_liberacion, foto_jugador]
-            print("Jugador agregado correctamente.")
+            jugador = input("Ingrese el nombre del jugador: ")
+            # Obtener el club actual del jugador
+            club_actual = datosJugadores.loc[datosJugadores['nombre jugador'] == jugador, 'club'].iloc[0]
+            print(f'El jugador {jugador} está actualmente en el club {club_actual}.')
+            club = input("Ingrese el nombre del club: ")
+            anadirjugadorclub(jugador, club)
         elif opcion == 11:
-            promedio_potencial_por_equipo()
+            promediopotencialporequipo()
         elif opcion == 12:
             letra = input("Ingrese la letra: ")
-            top_5_jugadores_por_letra(letra)
+            top5jugadoresporletra(letra)
         elif opcion == 13:
-            numero_jugadores_pie_izquierdo()
+            numerojugadorespieizquierdo()
         elif opcion == 14:
-            promedio_edad_altura_peso_por_nacionalidad()
+            promediopornacionalidad(datosJugadores)
+        elif opcion == 15:
+            nombre_jugador = input("Ingrese el nombre del jugador: ")
+            mostrarDatosJugador(nombre_jugador)
+            
         else:
             print("Opción no válida. Intente de nuevo.")
 

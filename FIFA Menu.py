@@ -1,3 +1,8 @@
+#Dante Aliste
+#Pia Godoy
+#Hermann Muller
+#Maycol Herrera
+#Ricardo Steelhearts
 import os
 import requests
 from PIL import Image
@@ -151,29 +156,29 @@ def promediopotencialporequipo():
         print(f"No se encontraron jugadores para el equipo {equipo}")
 ##Opcion 12##
 def top5jugadoresporletra(letra):
-    datosJugadores['sueldo'] = datosJugadores['sueldo'].astype(str).str.strip() #convertimos la columna sueldo a cadena y luego aplicamos strip para limpiar espacios
-    datosJugadores['sueldo'] = datosJugadores['sueldo'].replace(',', '').replace('', '0').astype(int) #remplazamos las , con cadenas vacias luego con 0 y convertimos todos a in
-    jugadores = datosJugadores[datosJugadores['nombre jugador'].str.contains(letra)] #se utiliza para verificar si la letra está presente en el nombre del jugador
+    datosJugadores['sueldo'] = datosJugadores['sueldo'].astype(str).str.strip()# convertimos la columna sueldo a cadena y luego aplicamos strip para limpiar espacios
+    datosJugadores['sueldo'] = datosJugadores['sueldo'].replace(',', '').replace('', '0').astype(int)# remplazamos las , con cadenas vacias luego con 0 y convertimos todos a in
+    jugadores = datosJugadores[datosJugadores['nombre jugador'].str.contains(letra)]# se utiliza para verificar si la letra está presente en el nombre del jugador
     top5jugadores = jugadores.nlargest(5, 'sueldo')# Encuentra los 5 jugadores con los salarios más altos entre los jugadores filtrados
     print(top5jugadores[['nombre jugador', 'sueldo']])# Imprime los nombres de los jugadores y sus salarios de los 5 jugadores principales   
 ##Opcion 13##
 def numerojugadorespieizquierdo():
-    PieIzquierdo = datosJugadores[datosJugadores['pie preferido'] == 'left']     #filtramos por pie izquierdo
+    PieIzquierdo = datosJugadores[datosJugadores['pie preferido'] == 'left']# Filtramos por pie izquierdo
     ContadorPie = PieIzquierdo.shape[0]    # contaos con shape la cantida de filas que hay en la columna
     print(f"Cantidad de jugadores con el pie izquierdo: {ContadorPie}")
 ##Opcion 14##
 def promediopornacionalidad(datosJugadores):
     nacionalidad = input("Ingrese la nacionalidad para mostrar el promedio de edad, altura y peso: ")# Le pide al usuario la nacionalidad del equipo para poder calcular 
     jugadores = datosJugadores[datosJugadores['nacionalidad'] == nacionalidad]# Filtra los datos de jugadores para obtener solo los jugadopara asi poder calcular el promedio de los jugadoresa
-    datosJugadores['edad'] = jugadores['edad'].astype(int)
-    datosJugadores['altura (cm)'] = jugadores['altura (cm)# Convierte las columnas de edad en un numero entero'].astype(int)
-    datosJugadores['peso (kg)'] = jugadores['peso (kg)'].astype(int)
-    if not jugadores.empty:
-        promedios = datosJugadores[['edad', 'altura (cm)', 'peso (kg)']].mean()
-        print("Promedio de edad:", f"{promedios['edad']:.1f}")
-        print("Promedio de altura en cm:", f"{promedios['altura (cm)']:.1f}")
-        print("Promedio de peso en kg:", f"{promedios['peso (kg)']:.1f}")
-    else:
+    datosJugadores['edad'] = jugadores['edad'].astype(int)# Convierte las columnas de edad en un numero entero
+    datosJugadores['altura (cm)'] = jugadores['altura (cm)'].astype(int)# Convierte la columna altura a tipo entero
+    datosJugadores['peso (kg)'] = jugadores['peso (kg)'].astype(int)# Convierte la columna peso a tipo entero
+    if not jugadores.empty:# Verifica si hay jugadores con la nacionalidad ingresada por el usuario
+        promedios = datosJugadores[['edad', 'altura (cm)', 'peso (kg)']].mean()# Calcula los promedios de edad, altura y peso para los jugadores de la nacionalidad dada
+        print("Promedio de edad:", f"{promedios['edad']:.1f}")# Imprime la edad promedio de los jugadores con la nacionalidad ingresada
+        print("Promedio de altura en cm:", f"{promedios['altura (cm)']:.1f}")# Imprime la altura promedio de los jugadores con la nacionalidad ingresada
+        print("Promedio de peso en kg:", f"{promedios['peso (kg)']:.1f}")# Imprime el peso promedio de los jugadores con la nacionalidad ingresada
+    else:# Si no se encuentran jugadores para la nacionalidad ingresada, imprime un mensaje indicándolo
         print('No se encontraron jugadores para esa nacionalidad.')
 ##Opcion 15 incluida por el proyecto##
 def mostrarDatosJugador(nombre_jugador):

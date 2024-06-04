@@ -22,11 +22,11 @@ def remplazarVocales(s): #Aqui definimos una tupla de reemplazos el primer eleme
 
 datosJugadores = pd.read_csv('fifa.csv', encoding='windows-1252') #Aqui Cargamos el documento con el encoding para los caracteres
 
-datosJugadores = datosJugadores.astype(str).applymap(remplazarVocales) # Convertimos todas las columnas a cadena y aplicamos remplazarVocales a todos los valores
+datosJugadores = datosJugadores.astype(str).map(remplazarVocales) # Convertimos todas las columnas a cadena y aplicamos remplazarVocales a todos los valores
 
 datosJugadores = datosJugadores.rename(columns=remplazarVocales) # Quitamos espacios en blanco de los nombres de las columnas y convertir a minusculas
 datosJugadores.columns = [col.strip().lower() for col in datosJugadores.columns] # renombramos las columnas limpiando los espacios con stripy convertir en minuscula con lower
-datosJugadores = datosJugadores.applymap(str.lower) #aplicamos y convertimos cada cadena de texto a minúsculas.
+datosJugadores = datosJugadores.map(str.lower) #aplicamos y convertimos cada cadena de texto a minúsculas.
 ## Opcion 1##
 def jugadoressueldomayor(monto):
 # Usar expresiones regulares para limpiar conjunto de caracteres
@@ -165,7 +165,7 @@ def promediopornacionalidad(datosJugadores):
     nacionalidad = input("Ingrese la nacionalidad para mostrar el promedio de edad, altura y peso: ")# Le pide al usuario la nacionalidad del equipo para poder calcular 
     jugadores = datosJugadores[datosJugadores['nacionalidad'] == nacionalidad]# Filtra los datos de jugadores para obtener solo los jugadopara asi poder calcular el promedio de los jugadoresa
     datosJugadores['edad'] = jugadores['edad'].astype(int)
-    datosJugadores['altura (cm)'] = jugadores['altura (cm)'].astype(int)
+    datosJugadores['altura (cm)'] = jugadores['altura (cm)# Convierte las columnas de edad en un numero entero'].astype(int)
     datosJugadores['peso (kg)'] = jugadores['peso (kg)'].astype(int)
     if not jugadores.empty:
         promedios = datosJugadores[['edad', 'altura (cm)', 'peso (kg)']].mean()

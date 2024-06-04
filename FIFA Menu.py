@@ -27,6 +27,7 @@ datosJugadores = datosJugadores.astype(str).map(remplazarVocales) # Convertimos 
 datosJugadores = datosJugadores.rename(columns=remplazarVocales) # Quitamos espacios en blanco de los nombres de las columnas y convertir a minusculas
 datosJugadores.columns = [col.strip().lower() for col in datosJugadores.columns] # renombramos las columnas limpiando los espacios con stripy convertir en minuscula con lower
 datosJugadores = datosJugadores.map(str.lower) #aplicamos y convertimos cada cadena de texto a minúsculas.
+print(datosJugadores.info())
 ## Opcion 1##
 def jugadoressueldomayor(monto):
 # Usar expresiones regulares para limpiar conjunto de caracteres
